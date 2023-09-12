@@ -1,0 +1,1156 @@
+---
+title: "Problem Set 1"
+format: 
+  html:
+    embed-resources: true
+editor: visual
+---
+
+## About this file
+
+This is the Yicun Duan's (umich id: 62178151) report of STAT 506's Problem Set 1.
+
+## Problem 1
+
+a)  Import the data into a `data.frame` in R.
+
+```{r}
+#| code-fold: show
+#| code-summary: "The code for Problem 1-a"
+#| warning: true
+#| error: true
+
+rm(list = ls())
+wines_data <- read.table("./wine/wine.data", sep = ",", header = FALSE)
+names(wines_data) <- c("Class ID", "Alcohol", "Malic acid", "Ash", "Alcalinity of ash", "Magnesium", "Total phenols", "Flavanoids", "Nonflavanoid phenols", "Proanthocyanins", "Color intensity", "Hue", "OD280/OD315", "Proline")
+```
+
+b)  The data contains information on three different classes of wine. Ensure that the number of wines within each class is correct as reported in "wine.names".
+
+```{r}
+#| code-fold: show
+#| code-summary: "The code for Problem 1-b"
+#| warning: true
+#| error: true
+
+class_num = c(59, 71, 48)
+for (i in 1:3) {
+  print(
+    paste("The number of wines for class", 
+          i, "is correct:", 
+          length(which(wines_data$"Class ID" == i)) == class_num[i])
+    )
+}
+rm(class_num)
+```
+
+c)  Use the data to answer the following questions:
+
+<!-- -->
+
+1.  The wine with the highest alcohol content belongs to which class?
+
+```{r}
+#| code-fold: show
+#| code-summary: "The code for Problem 1-c-1"
+#| warning: true
+#| error: true
+
+print(
+  paste("It's the class: ", 
+        wines_data$"Class ID"[
+          which.max(wines_data$"Alcohol")
+          ])
+  )
+```
+
+2.  The wine with the lowest alcohol content belongs to which class?
+
+```{r}
+#| code-fold: show
+#| code-summary: "The code for Problem 1-c-2"
+#| warning: true
+#| error: true
+
+print(
+  paste("It's the class: ", 
+        wines_data$"Class ID"[
+          which.min(wines_data$"Alcohol")
+          ])
+  )
+```
+
+3.  German beers have, on average, 114 mg/l of magnesium. How many of these wines have higher levels of magnesium than that? (You may assume that the magnesium reported in the data is in the same units.)
+
+```{r}
+#| code-fold: show
+#| code-summary: "The code for Problem 1-c-3"
+#| warning: true
+#| error: true
+
+print(
+  paste("There are", sum(wines_data$"Magnesium" > 114),
+        "wines whose magnesium are higher than 114.")
+  )
+```
+
+4.  Within each class, how many wines have higher levels of magnesium than average German beer?
+
+```{r}
+#| code-fold: show
+#| code-summary: "The code for Problem 1-c-4"
+#| warning: true
+#| error: true
+
+class_wines_pos <- list(which(wines_data$"Class ID" == 1),
+                        which(wines_data$"Class ID" == 2),
+                        which(wines_data$"Class ID" == 3))
+for (i in 1:3) {
+  print(paste(
+        "For class", i, 
+        ", there are", 
+        sum(wines_data[class_wines_pos[[i]], ]$"Magnesium" > 114),
+        "wines whose magnesium are higher than 114.")
+        )
+}
+```
+
+d)  Create a table identifying the average value of each variable, providing one row for the overall average, and one row per class with class averages. (This table does not need to be "fancy" but should clearly identify what each value represents.)
+
+```{r}
+#| code-fold: show
+#| code-summary: "The code for Problem 1-d"
+#| warning: true
+#| error: true
+
+overall_avg <- colMeans(wines_data)
+class_1_avg <- colMeans(wines_data[class_wines_pos[[1]], ])
+class_2_avg <- colMeans(wines_data[class_wines_pos[[2]], ])
+class_3_avg <- colMeans(wines_data[class_wines_pos[[3]], ])
+
+tab_first_row <- paste(sprintf("%20s|", c("", names(wines_data)[2:14])), collapse = "")
+tab_second_row <- paste(sprintf("%20s|", "Overall Avg"), paste(sprintf("%20.3f|", overall_avg[2:14]), collapse = ""), sep = "")
+tab_third_row <- paste(sprintf("%20s|", "Class 1 Avg"), paste(sprintf("%20.3f|", class_1_avg[2:14]), collapse = ""), sep = "")
+tab_forth_row <- paste(sprintf("%20s|", "Class 2 Avg"), paste(sprintf("%20.3f|", class_2_avg[2:14]), collapse = ""), sep = "")
+tab_fifth_row <- paste(sprintf("%20s|", "Class 3 Avg"), paste(sprintf("%20.3f|", class_3_avg[2:14]), collapse = ""), sep = "")
+cat(paste(tab_first_row, tab_second_row, tab_third_row, tab_forth_row, tab_fifth_row, sep = "\n"))
+```
+
+e)  Carry out a series of t-tests to examine whether the level of Ash differs across the three classes. Present the R output and interpret the results. (You may use an existing R function to carry out the t-test, or for minor extra credit, manually write your own calculation of the t-test p-values.)
+
+```{r}
+#| code-fold: show
+#| code-summary: "The code for Problem 1-e"
+#| warning: true
+#| error: true
+
+class_1_ash <- wines_data[class_wines_pos[[1]], ]$"Ash"
+class_2_ash <- wines_data[class_wines_pos[[2]], ]$"Ash"
+class_3_ash <- wines_data[class_wines_pos[[3]], ]$"Ash"
+
+t.test(class_1_ash, class_2_ash)
+t.test(class_2_ash, class_3_ash)
+t.test(class_1_ash, class_3_ash)
+
+rm(list = ls())
+```
+
+From the outputs of t-tests, we can get $p_{(i, j)}$ for hypothesis $H_{(i, j)}$, where $H_{(i, j)}$ refers to the hypothesis "the true difference between the ash levels of class $i$ and class $j$ in means is not equal to 0". If we take $\alpha = 0.05$, which is the common practice, we can find that $p_{(1, 2)} = 2.124e-05 < \alpha$, $p_{(2, 3)} = 5.627e-05 < \alpha$ and $p_{(1, 3)} = 0.643 > \alpha$. This demonstrates that we can reject $H_{(1, 2)}$, $H_{(2, 3)}$, and accept $H_{(1, 3)}$. 
+
+## Problem 2
+
+a)  Write a function `isPerfectPower` to identify whether a given integer is a perfect power for a given power. Do not use any existing functions to check this; do so with arithmetic.
+
+```{r}
+#| code-fold: show
+#| code-summary: "The code for Problem 2-a"
+#| warning: true
+#| error: true
+
+isPerfectPower <- function(n, p) {
+  r <- n^(1 / p)
+  r_round <- round(r, digits = 0)
+  if (abs(r - r_round) <= 1.5e-8) {
+    return(list(isPerfect = TRUE, root = r_round))
+  } else {
+    return(list(isPerfect = FALSE, root = r))
+  }
+}
+
+isPerfectPower(27, 3)
+```
+
+b)  Demonstrate your function works. Do so by writing another function `findRootPower` which calls your first function, using a loop to identify both the root and power. Your function should identify the lowest power for which the input is perfect.
+
+```{r}
+#| code-fold: show
+#| code-summary: "The code for Problem 2-b"
+#| warning: true
+#| error: true
+
+findRootPower <- function(n) {
+  p <- 2
+  while (!(p > log(n, 2))) {
+    tmp_output <- isPerfectPower(n, p)
+    if (tmp_output[[1]] == TRUE) {
+      return(sprintf("%.0f = %.0f^%.0f", n, tmp_output[[2]], p))
+    } else {
+      p <- p + 1
+    }
+  }
+  
+  return("findRootPower can't find the appropriate root and power.")
+}
+
+findRootPower(125)
+findRootPower(27)
+findRootPower(13060694016)
+findRootPower(7776)
+findRootPower(170859375)
+findRootPower(58247422)
+findRootPower(94143178827)
+
+rm(list = ls())
+```
+
+## Problem 3
+
+a)  Put the following prompt into ChatGPT (or your favorite other LLM) and copy its output (both the code it produces as well as any text it generates) into your submission. (If a non-ChatGPT LLM produces nonsense results, try ChatGPT. If that is still producing nonsense, let me know. Blockquotes might be useful for displaying this inside your Quarto document.)
+
+ChatGPT's output:
+
+Certainly! Below is the code for two R functions to accomplish these tasks.
+
+1.  The first function `poker_hand_name` takes in a vector of suits and a vector of ranks representing a 5-card hand. It returns the name of the poker hand.
+2.  The second function `deal_poker_round` simulates dealing a round of cards in a 5-card stud poker game. It allows the user to specify the number of players and shows each player's hand as well as the name of the hand.
+
+Here's the code:
+
+```{r}
+# Function to determine the name of the poker hand
+poker_hand_name <- function(suits, ranks) {
+  sorted_ranks <- sort(ranks)
+  unique_suits <- unique(suits)
+  unique_ranks <- unique(sorted_ranks)
+  
+  is_flush <- length(unique_suits) == 1
+  is_straight <- all(diff(sorted_ranks) == 1) && length(unique_ranks) == 5
+  
+  if (is_flush && is_straight) {
+    return("Straight Flush")
+  }
+  
+  rank_count <- table(ranks)
+  
+  if (any(rank_count == 4)) {
+    return("Four of a Kind")
+  }
+  
+  if (any(rank_count == 3) && any(rank_count == 2)) {
+    return("Full House")
+  }
+  
+  if (is_flush) {
+    return("Flush")
+  }
+  
+  if (is_straight) {
+    return("Straight")
+  }
+  
+  if (any(rank_count == 3)) {
+    return("Three of a Kind")
+  }
+  
+  if (sum(rank_count == 2) == 2) {
+    return("Two Pair")
+  }
+  
+  if (any(rank_count == 2)) {
+    return("One Pair")
+  }
+  
+  return("High Card")
+}
+
+# Function to deal a round of 5-card stud poker for a specified number of players
+deal_poker_round <- function(num_players) {
+  suits <- c("Hearts", "Diamonds", "Clubs", "Spades")
+  ranks <- c("2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace")
+  
+  deck <- expand.grid(suit = suits, rank = ranks)
+  shuffled_deck <- deck[sample(nrow(deck)),]
+  
+  for (i in 1:num_players) {
+    hand_start <- (i - 1) * 5 + 1
+    hand_end <- i * 5
+    
+    hand_suits <- shuffled_deck$suit[hand_start:hand_end]
+    hand_ranks <- shuffled_deck$rank[hand_start:hand_end]
+    
+    print(paste("Player", i, "Hand:"))
+    print(paste(hand_ranks, "of", hand_suits))
+    hand_name <- poker_hand_name(hand_suits, hand_ranks)
+    print(paste("Hand Name:", hand_name))
+  }
+}
+
+# Run the function to deal a round for 4 players
+deal_poker_round(4)
+```
+
+To run this code, simply copy and paste it into your R environment and execute it. The function `deal_poker_round` will simulate dealing a round of 5-card stud poker for the specified number of players, in this case, 4 players.
+
+Keep in mind that the code does not handle re-shuffling the deck, so it won't work correctly for more than 10 players (since 10 players \* 5 cards/player = 50 cards, and a deck has 52 cards).
+
+I hope this helps! Let me know if you have further questions!
+
+b)  See if the code runs without modification in R. If so, demonstrate it with a range of inputs. If not, fix it and explain what you fixed. (If you identify that the code is massively broken, try re-generating the response.) At this point we only care if the code runs without errors for a variety on inputs; we'll make sure it's correct below.
+
+    It seems that the function provided by ChatGPT can run without error for inputs 1, 2, 3, 4, 5, 6, 7, 8, 9 and 10.
+
+```{r}
+#| code-fold: show
+#| code-summary: "The code for Problem 3-b"
+#| warning: true
+#| error: true
+
+set.seed(218)
+
+for (i in 1:10) {
+  deal_poker_round(i)
+}
+
+```
+
+c)  Without asking ChatGPT or another LLM, explain line-by-line what the code is doing. Don't forget about `help()` if it uses functions you aren't familiar with. The easiest way to display this would be to throughly comment the code. I'm looking for roughly one comment for each line of code. (Roughly because some lines of code are trivial, e.g. `x <- 4`; whereas others may require several lines of comments to explain.)
+
+```{r}
+#| code-fold: show
+#| code-summary: "The code for Problem 3-c"
+#| warning: true
+#| error: true
+
+#' Function to determine the name of the poker hand.
+#'
+#' @param suits the suits of player's 5 cards.
+#' @param ranks the ranks of player's 5 cards.
+#'
+#' @return the name of the hand.
+poker_hand_name <- function(suits, ranks) {
+  # Sort the ranks in ascending order.
+  # According to the document of function 'sort', the default order is ascending.
+  # Please note that 'ranks' has 'levels' attribute, so the function will sort the 'ranks' according to the 'levels'.
+  sorted_ranks <- sort(ranks)
+  # Remove the duplicated elements in vector 'suit'.
+  unique_suits <- unique(suits)
+  # Remove the duplicated elements in vector 'sorted_ranks'.
+  unique_ranks <- unique(sorted_ranks)
+  
+  # Test whether the 5 cards are in the same suit. If so, the variable 'is_flush' will be TRUE.
+  is_flush <- length(unique_suits) == 1
+  # Test whether there are 5 cards in a sequence and their ranks are different. If so, the variable 'is_straight' will be TRUE.
+  is_straight <- all(diff(sorted_ranks) == 1) && length(unique_ranks) == 5
+  
+  # If both variable 'is_flush' and 'is_straight' are TRUE, the function will return the string "Straight Flush".
+  if (is_flush && is_straight) {
+    return("Straight Flush")
+  }
+  
+  # Get the contingency table of the ranks of player's 5 cards.
+  rank_count <- table(ranks)
+  
+  # If there are 4 cards of the same rank, it will return the string "Four of a Kind".
+  if (any(rank_count == 4)) {
+    return("Four of a Kind")
+  }
+  
+  # If there are 3 cards of the same rank, and the other 2 cards are a pair, it will return the string "Full House".
+  if (any(rank_count == 3) && any(rank_count == 2)) {
+    return("Full House")
+  }
+  
+  # If the variable 'is_flush' is TRUE, it will return the string "Flush". 
+  # Please note that "Straight Flush" is already tested in the above code.
+  if (is_flush) {
+    return("Flush")
+  }
+  
+  # If the variable 'is_straight' is TRUE, it will return the string "Straight". 
+  # Please note that "Straight Flush" is already tested in the above code.
+  if (is_straight) {
+    return("Straight")
+  }
+  
+  # If there are 3 cards of the same rank, it will return the string "Three of a Kind".
+  if (any(rank_count == 3)) {
+    return("Three of a Kind")
+  }
+  
+  # If there are 2 different pairs, it will return the string "Two Pair".
+  if (sum(rank_count == 2) == 2) {
+    return("Two Pair")
+  }
+  
+  # If there are only one pair of cards of the same rank, it will return the string "One Pair".
+  if (any(rank_count == 2)) {
+    return("One Pair")
+  }
+  
+  # If all the above cases don't happen, it will return the string "High Card".
+  return("High Card")
+}
+
+#' Function to deal a round of 5-card stud poker for a specified number of players.
+#'
+#' @param num_players the number of players.
+#'
+#' @return it will print out all the hands and the name of each hand.
+deal_poker_round <- function(num_players) {
+  # Define the suits.
+  suits <- c("Hearts", "Diamonds", "Clubs", "Spades")
+  # Define the ranks.
+  ranks <- c("2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace")
+  
+  # Create a data frame which contains all combinations of the 'suits' and 'ranks'. This data frame is equivalent to a deck.
+  deck <- expand.grid(suit = suits, rank = ranks)
+  # Reshuffle the deck. 
+  # It uses 'sample' function to generate an integer vector of size 52 whose elements are chosen from range [1, 52] without duplication.
+  shuffled_deck <- deck[sample(nrow(deck)),]
+  
+  # Deal 5 cards to each player.
+  for (i in 1:num_players) {
+    # The first card for the i-th player.
+    hand_start <- (i - 1) * 5 + 1
+    # The last card for the i-th player.
+    hand_end <- i * 5
+    
+    # Get the suits of the i-th player's cards.
+    hand_suits <- shuffled_deck$suit[hand_start:hand_end]
+    # Get the ranks of the i-th player's cards. 
+    # Please note that the 'hand_ranks' also records the levels of ranks which are the useful information for 'sort' function.
+    hand_ranks <- shuffled_deck$rank[hand_start:hand_end]
+    
+    # Show the cards in i-th player's hand.
+    print(paste("Player", i, "Hand:"))
+    print(paste(hand_ranks, "of", hand_suits))
+    # Show the name of the hand of i-th player.
+    hand_name <- poker_hand_name(hand_suits, hand_ranks)
+    print(paste("Hand Name:", hand_name))
+  }
+}
+
+```
+
+d)  Determine whether the code produces accurate results. Explain how you made this determination. Check at least the following:
+
+**Test-1**: Are the inputs and outputs as described above?
+
+Yes, both function `poker_hand_name` and function `deal_poker_round` have the right input and output format. As shown in the section *The code for Problem 3-c*, the function `poker_hand_name` receives vector `suits` and vector `ranks` from its caller `deal_poker_round`, and then outputs the hand's name, which meets our requirement for the first R function. For function `deal_poker_round`, it takes the parameter `num_players` from users, simulates dealing a round of cards for `num_players` players, and finally showcases all the hands and their corresponding names. As displayed in the output of *The code for Problem 3-b*, the output of function `deal_poker_round` contains a summary of cards in players' hands, such as "Player 1 Hand: 6 of Spades, King of Spades, ...", and the names for each hand, like "Hand Name: Straight". Thus, the ChatGPT-generated `deal_poker_round` meets our requirement.
+
+**Test-2**: Are the hands valid (e.g. real cards, no duplicates, right number)?
+
+We first collect the outputs of `deal_poker_round` using a nested list, and then verify that the hands in this nested list are valid.
+
+For the convenience of testing, we need to arrange the output of `deal_poker_round` as a nested `list`, which is realized through the following code:
+
+```{r}
+#| code-fold: show
+#| code-summary: "The code for Problem 3-d"
+#| warning: true
+#| error: true
+
+#' Function to deal a round of 5-card stud poker for a specified number of players.
+#'
+#' @param num_players the number of players.
+#'
+#' @return it will return a nested list to show hands and hands' names.
+deal_poker_round <- function(num_players) {
+  # Define the suits.
+  suits <- c("Hearts", "Diamonds", "Clubs", "Spades")
+  # Define the ranks.
+  ranks <- c("2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace")
+  
+  # Create a data frame which contains all combinations of the 'suits' and 'ranks'. This data frame is equivalent to a deck.
+  deck <- expand.grid(suit = suits, rank = ranks)
+  # Reshuffle the deck. 
+  # It uses 'sample' function to generate an integer vector of size 52 whose elements are chosen from range [1, 52] without duplication.
+  shuffled_deck <- deck[sample(nrow(deck)),]
+  
+  # We store all the outputs into a nested list
+  output <- list(
+    suits = vector(mode = "list", length = num_players), 
+    ranks = vector(mode = "list", length = num_players), 
+    hand_name = vector(mode = "character", length = num_players)
+    )
+  
+  # Deal 5 cards to each player.
+  for (i in 1:num_players) {
+    # The first card for the i-th player.
+    hand_start <- (i - 1) * 5 + 1
+    # The last card for the i-th player.
+    hand_end <- i * 5
+    
+    # Get the suits of the i-th player's cards.
+    output$"suits"[[i]] <- shuffled_deck$suit[hand_start:hand_end]
+    # Get the ranks of the i-th player's cards. 
+    # Please note that the 'hand_ranks' also records the levels of ranks which are the useful information for 'sort' function.
+    output$"ranks"[[i]] <- shuffled_deck$rank[hand_start:hand_end]
+    
+    ## Show the cards in i-th player's hand.
+    # print(paste("Player", i, "Hand:"))
+    # print(paste(hand_ranks, "of", hand_suits))
+    ## Show the name of the hand of i-th player.
+    # hand_name <- poker_hand_name(hand_suits, hand_ranks)
+    # print(paste("Hand Name:", hand_name))
+    
+    # Get hand name
+    output$"hand_name"[i] <- poker_hand_name(output$"suits"[[i]], output$"ranks"[[i]])
+  }
+  
+  return(output)
+}
+
+deal_poker_round(4)
+
+```
+
+We ensure the number of players is correct and each player gets 5 cards:
+
+```{r}
+#| code-fold: show
+#| code-summary: "The code for Problem 3-d"
+#| warning: true
+#| error: true
+
+
+#' Test whether the number of players is right and the number of cards for each player is correct
+#'
+#' @param player_num the expected number of players.
+#' @param suits the suits of all hands.
+#' @param ranks the ranks of all hands.
+#'
+#' @return TRUE if there are enough players and each player has 5 cards. Otherwise FALSE.
+test_num <- function(player_num, suits, ranks) {
+  if (!(player_num == length(suits) &&
+        player_num == length(ranks)
+        )
+      ) {
+    return(FALSE)
+  }
+  
+  for (i in 1:player_num) {
+    if (length(suits[[i]]) != 5) {
+      return(FALSE)
+    }
+  }
+  
+  for (i in 1:player_num) {
+    if (length(ranks[[i]]) != 5) {
+      return(FALSE)
+    }
+  }
+  
+  return(TRUE)
+}
+
+# Test for 1000 times
+test_pass <- TRUE
+for (i in 1:1000) {
+  player_num <- sample(1:10, 1)
+  output <- deal_poker_round(player_num)
+  if (test_num(player_num, output$"suits", output$"ranks") == FALSE) {
+    test_pass <- FALSE
+    break
+  }
+}
+
+if (test_pass) {
+  print("Test passes.")
+} else {
+  print("Test fails.")
+}
+```
+
+We then test whether the suits and the ranks of cards are correct by using the following test code:
+
+```{r}
+#| code-fold: show
+#| code-summary: "The code for Problem 3-d"
+#| warning: true
+#| error: true
+
+
+#' Test whether the cards' suits are correct.
+#'
+#' @param suits the suits of 5 cards (one hand).
+#'
+#' @return TRUE if the suits are correct. Otherwise FALSE.
+test_suits <- function(suits) {
+  return(all(suits == "Hearts" | 
+             suits == "Diamonds" |
+             suits == "Clubs" |
+             suits == "Spades")
+         )
+}
+
+# Test for 1000 times
+test_pass <- TRUE
+for (i in 1:1000) {
+  output <- deal_poker_round(sample(1:10, 1))
+  for (j in seq_along(output$"suits")) {
+    if (test_suits(output$"suits"[[j]]) == FALSE) {
+      test_pass <- FALSE
+      break
+    }
+  }
+  
+  if (!test_pass) {
+    break
+  }
+}
+
+if (test_pass) {
+  print("Test passes.")
+} else {
+  print("Test fails.")
+}
+
+#' Test whether the cards' ranks are correct.
+#'
+#' @param ranks the ranks of 5 cards (one hand).
+#'
+#' @return TRUE if the numbers are correct. Otherwise FALSE.
+test_ranks <- function(ranks) {
+  return(all(ranks == "2" | 
+             ranks == "3" |
+             ranks == "4" |
+             ranks == "5" |
+             ranks == "6" |
+             ranks == "7" |
+             ranks == "8" |
+             ranks == "9" |
+             ranks == "10" |
+             ranks == "Jack" |
+             ranks == "Queen" |
+             ranks == "King" |
+             ranks == "Ace")
+         )
+}
+
+# Test for 1000 times
+test_pass <- TRUE
+for (i in 1:1000) {
+  output <- deal_poker_round(sample(1:10, 1))
+  for (j in seq_along(output$"ranks")) {
+    if (test_ranks(output$"ranks"[[j]]) == FALSE) {
+      test_pass <- FALSE
+      break
+    }
+  }
+  
+  if (!test_pass) {
+    break
+  }
+}
+
+if (test_pass) {
+  print("Test passes.")
+} else {
+  print("Test fails.")
+}
+
+```
+
+We now test that, for all hands, there is no duplicated card.
+
+```{r}
+#| code-fold: show
+#| code-summary: "The code for Problem 3-d"
+#| warning: true
+#| error: true
+
+
+#' Test whether there are duplicated cards for all hands.
+#'
+#' @param suits a list including the suits of all hands.
+#' @param ranks a list including the ranks of all hands.
+#'
+#' @return TRUE if no duplicated card is found. Otherwise FALSE.
+test_duplicated_card <- function(suits, ranks) {
+  # Create a vector to collect all cards.
+  all_cards <- vector(mode = "integer", length = length(suits) * 5)
+  for (i in seq_along(suits)) {
+    for (j in seq_along(suits[[i]])) {
+      suit <- suits[[i]][j]
+      rank <- ranks[[i]][j]
+      card_unique_num <- 0
+      if (suit == "Hearts") {
+        card_unique_num <- card_unique_num + 0
+      } else if (suit == "Diamonds") {
+        card_unique_num <- card_unique_num + 13
+      } else if (suit == "Clubs") {
+        card_unique_num <- card_unique_num + 26
+      } else if (suit == "Spades") {
+        card_unique_num <- card_unique_num + 39
+      }
+      
+      if (rank == "Ace") {
+        card_unique_num <- card_unique_num + 1
+      } else if (rank == "2") {
+        card_unique_num <- card_unique_num + 2
+      } else if (rank == "3") {
+        card_unique_num <- card_unique_num + 3
+      } else if (rank == "4") {
+        card_unique_num <- card_unique_num + 4
+      } else if (rank == "5") {
+        card_unique_num <- card_unique_num + 5
+      } else if (rank == "6") {
+        card_unique_num <- card_unique_num + 6
+      } else if (rank == "7") {
+        card_unique_num <- card_unique_num + 7
+      } else if (rank == "8") {
+        card_unique_num <- card_unique_num + 8
+      } else if (rank == "9") {
+        card_unique_num <- card_unique_num + 9
+      } else if (rank == "10") {
+        card_unique_num <- card_unique_num + 10
+      } else if (rank == "Jack") {
+        card_unique_num <- card_unique_num + 11
+      } else if (rank == "Queen") {
+        card_unique_num <- card_unique_num + 12
+      } else if (rank == "King") {
+        card_unique_num <- card_unique_num + 13
+      }
+      
+      all_cards[(i - 1) * 5 + j] <- card_unique_num
+    }
+  }
+  
+  return(all(table(all_cards) == 1))
+}
+
+# Test for 1000 times
+test_pass <- TRUE
+for (i in 1:1000) {
+  output <- deal_poker_round(sample(1:10, 1))
+  if (test_duplicated_card(output$"suits", output$"ranks") == FALSE) {
+      test_pass <- FALSE
+      break
+    }
+}
+
+if (test_pass) {
+  print("Test passes.")
+} else {
+  print("Test fails.")
+}
+
+```
+
+**Test-3**: Are the names of the hands correct?
+
+We create some test cases, including the input suits, input ranks and expected hand name, to test the `poker_hand_name` function.
+
+```{r}
+#| code-fold: show
+#| code-summary: "The code for Problem 3-d"
+#| warning: true
+#| error: true
+
+# Test cases
+royal_flush <- list(
+  suits = factor(c("Diamonds", "Diamonds", "Diamonds", "Diamonds", "Diamonds"), 
+                 levels=c("Hearts", "Diamonds", "Clubs", "Spades")),
+  ranks = factor(c("Ace", "King", "Queen", "Jack", "10"), 
+                 levels = c("2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace")),
+  expected_hand_name = "Royal Flush")
+
+straight_flush <- list(
+  suits = factor(c("Diamonds", "Diamonds", "Diamonds", "Diamonds", "Diamonds"), 
+                 levels=c("Hearts", "Diamonds", "Clubs", "Spades")),
+  ranks = factor(c("8", "7", "6", "5", "4"), 
+                 levels = c("2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace")),
+  expected_hand_name = "Straight Flush")
+
+four_of_a_kind <- list(
+  suits = factor(c("Hearts", "Diamonds", "Clubs", "Spades", "Diamonds"), 
+                 levels=c("Hearts", "Diamonds", "Clubs", "Spades")),
+  ranks = factor(c("Jack", "Jack", "Jack", "Jack", "7"), 
+                 levels = c("2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace")),
+  expected_hand_name = "Four of a Kind")
+
+full_house <- list(
+  suits = factor(c("Hearts", "Diamonds", "Clubs", "Spades", "Diamonds"), 
+                 levels=c("Hearts", "Diamonds", "Clubs", "Spades")),
+  ranks = factor(c("10", "10", "10", "9", "9"), 
+                 levels = c("2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace")),
+  expected_hand_name = "Full House")
+
+flush <- list(
+  suits = factor(c("Hearts", "Hearts", "Hearts", "Hearts", "Hearts"), 
+                 levels=c("Hearts", "Diamonds", "Clubs", "Spades")),
+  ranks = factor(c("4", "Jack", "8", "2", "9"), 
+                 levels = c("2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace")),
+  expected_hand_name = "Flush")
+
+straight <- list(
+  suits = factor(c("Hearts", "Diamonds", "Clubs", "Spades", "Hearts"), 
+                 levels=c("Hearts", "Diamonds", "Clubs", "Spades")),
+  ranks = factor(c("9", "8", "7", "6", "5"), 
+                 levels = c("2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace")),
+  expected_hand_name = "Straight")
+
+three_of_a_kind <- list(
+  suits = factor(c("Hearts", "Diamonds", "Clubs", "Spades", "Hearts"), 
+                 levels=c("Hearts", "Diamonds", "Clubs", "Spades")),
+  ranks = factor(c("7", "7", "7", "King", "3"), 
+                 levels = c("2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace")),
+  expected_hand_name = "Three of a Kind")
+
+two_pair <- list(
+  suits = factor(c("Hearts", "Diamonds", "Clubs", "Spades", "Hearts"), 
+                 levels=c("Hearts", "Diamonds", "Clubs", "Spades")),
+  ranks = factor(c("4", "4", "3", "3", "Queen"), 
+                 levels = c("2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace")),
+  expected_hand_name = "Two Pair")
+
+one_pair <- list(
+  suits = factor(c("Hearts", "Diamonds", "Clubs", "Spades", "Hearts"), 
+                 levels=c("Hearts", "Diamonds", "Clubs", "Spades")),
+  ranks = factor(c("Ace", "Ace", "8", "3", "Queen"), 
+                 levels = c("2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace")),
+  expected_hand_name = "One Pair")
+
+high_card <- list(
+  suits = factor(c("Hearts", "Diamonds", "Clubs", "Spades", "Hearts"), 
+                 levels=c("Hearts", "Diamonds", "Clubs", "Spades")),
+  ranks = factor(c("3", "Jack", "8", "4", "2"), 
+                 levels = c("2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace")),
+  expected_hand_name = "High Card")
+
+hand_name_test_cases <- list(royal_flush, straight_flush, four_of_a_kind, full_house,
+                             flush, straight, three_of_a_kind, 
+                             two_pair, one_pair, high_card)
+
+for (i in seq_along(hand_name_test_cases)) {
+  ori_output_hand_name <- poker_hand_name(suits = hand_name_test_cases[[i]]$"suits",
+                                          ranks = hand_name_test_cases[[i]]$"ranks")
+  expected_hand_name <- hand_name_test_cases[[i]]$"expected_hand_name"
+  
+  if (ori_output_hand_name != expected_hand_name) {
+    correct_hand_name <- expected_hand_name
+    wrong_hand_name <- ori_output_hand_name
+    fail_suits <- hand_name_test_cases[[i]]$"suits"
+    fail_ranks <- hand_name_test_cases[[i]]$"ranks"
+    
+    cat("Test fails: \n",
+      "The suits are (in levels): ", fail_suits, 
+      "\n The ranks are (in levels): ", fail_ranks,
+      "\n Expected hand name is: ", correct_hand_name,
+      "\n But get the wrong hand name: ", wrong_hand_name, "\n")
+    
+  } else {
+    cat("Test passes: ", expected_hand_name, "\n")
+  }
+}
+
+
+```
+
+***Analyze the error***: As shown in the above testing, the test fails when the function gets the input of cases "Royal Flush", "Flush" and "High Card". There are two reasons for the failure: (1) The function `poker_hand_name` can't identify the "Royal Flush" case. When we inspect the function, we can find that the function doesn't test the "Royal Flush". (2) The `is_straight` variable is always TRUE when there are five cards with different ranks, even though they are not consecutive. This is because the first part of conditional statement `all(diff(sorted_ranks) == 1) && length(unique_ranks) == 5` (i.e., `all(diff(sorted_ranks) == 1)`) operates in a wrong way and always returns TRUE. The function `diff` in it can't take the `factor` object (`sorted_ranks`) as input, which leads to error. In this case, the `all(diff(sorted_ranks) == 1)` always gives us TRUE, as illustrated below:
+
+```{r}
+#| code-fold: show
+#| code-summary: "The code for Problem 3-d"
+#| warning: true
+#| error: true
+
+# Simulate 'diff(sorted_ranks)'.
+diff(factor(c("1", "3", "4", "2"), levels = c("1", "2", "3", "4")))
+
+# Simulate 'diff(sorted_ranks) == 1'.
+diff(factor(c("1", "3", "4", "2"), levels = c("1", "2", "3", "4"))) == 1
+
+# Simulate 'all(diff(sorted_ranks) == 1)'.
+all(diff(factor(c("1", "3", "4", "2"), levels = c("1", "2", "3", "4"))) == 1)
+```
+
+***Fix the error***: To fix the first error, we additionally test the "Royal Flush" using the code `is_royal <- all(sorted_ranks_numeric == (9:13))`. For addressing the second error, we need to transfer the `factor` object (`sorted_ranks`) to a numeric vector, so that the function `diff` can process it. In the following code block, we convert the `sorted_ranks` to a numeric vector using the code `sorted_ranks_numeric <- convert_ranks_to_num_levels(sorted_ranks)`. Then, we figure out `is_straight` using `is_straight <- all(diff(sorted_ranks_numeric) == 1) && length(unique_ranks) == 5`.
+
+As shown in the re-test output, the new `poker_hand_name` can now work correctly.
+
+```{r}
+#| code-fold: show
+#| code-summary: "The code for Problem 3-d"
+#| warning: true
+#| error: true
+
+#' Convert the ranks (strings) to numbers, according to their levels.
+#'
+#' @param ranks a vector of ranks.
+#'
+#' @return a vector of numeric ranks.
+convert_ranks_to_num_levels <- function(ranks) {
+  rank_levels <- vector(mode = "integer", length = length(ranks))
+  for (i in seq_along(ranks)) {
+    rank <- ranks[i]
+    if (rank == "2") {
+        rank_levels[i] <- 1
+      } else if (rank == "3") {
+        rank_levels[i] <- 2
+      } else if (rank == "4") {
+        rank_levels[i] <- 3
+      } else if (rank == "5") {
+        rank_levels[i] <- 4
+      } else if (rank == "6") {
+        rank_levels[i] <- 5
+      } else if (rank == "7") {
+        rank_levels[i] <- 6
+      } else if (rank == "8") {
+        rank_levels[i] <- 7
+      } else if (rank == "9") {
+        rank_levels[i] <- 8
+      } else if (rank == "10") {
+        rank_levels[i] <- 9
+      } else if (rank == "Jack") {
+        rank_levels[i] <- 10
+      } else if (rank == "Queen") {
+        rank_levels[i] <- 11
+      } else if (rank == "King") {
+        rank_levels[i] <- 12
+      } else if (rank == "Ace") {
+        rank_levels[i] <- 13
+      }
+  }
+  
+  return(rank_levels)
+}
+
+#' Function to determine the name of the poker hand.
+#'
+#' @param suits the suits of player's 5 cards.
+#' @param ranks the ranks of player's 5 cards.
+#'
+#' @return the name of the hand.
+poker_hand_name <- function(suits, ranks) {
+  # Sort the ranks in ascending order.
+  # According to the document of function 'sort', the default order is ascending.
+  # Please note that 'ranks' has 'levels' attribute, so the function will sort the 'ranks' according to the 'levels'.
+  sorted_ranks <- sort(ranks)
+  # Remove the duplicated elements in vector 'suit'.
+  unique_suits <- unique(suits)
+  # Remove the duplicated elements in vector 'sorted_ranks'.
+  unique_ranks <- unique(sorted_ranks)
+  
+  # Fix the error: Convert 'sorted_ranks' to a numeric vector.
+  sorted_ranks_numeric <- convert_ranks_to_num_levels(sorted_ranks)
+  
+  # Fix the error: If the cards are 'A', 'K', 'J', 'Q', '10', we set 'is_royal' to be TRUE.
+  is_royal <- all(sorted_ranks_numeric == (9:13))
+  
+  # Test whether the 5 cards are in the same suit. If so, the variable 'is_flush' will be TRUE.
+  is_flush <- length(unique_suits) == 1
+  
+  # Test whether there are 5 cards in a sequence and their ranks are different. If so, the variable 'is_straight' will be TRUE.
+  # Fix the error: We replace 'diff(sorted_ranks)' with 'diff(sorted_ranks_numeric)'.
+  is_straight <- all(diff(sorted_ranks_numeric) == 1) && length(unique_ranks) == 5
+  
+  # Fix the error: We additionally test the "Royal Flush"
+  if (is_royal && is_flush) {
+    return("Royal Flush")
+  }
+  
+  # If both variable 'is_flush' and 'is_straight' are TRUE, the function will return the string "Straight Flush".
+  if (is_flush && is_straight) {
+    return("Straight Flush")
+  }
+  
+  # Get the contingency table of the ranks of player's 5 cards.
+  rank_count <- table(ranks)
+  
+  # If there are 4 cards of the same rank, it will return the string "Four of a Kind".
+  if (any(rank_count == 4)) {
+    return("Four of a Kind")
+  }
+  
+  # If there are 3 cards of the same rank, and the other 2 cards are a pair, it will return the string "Full House".
+  if (any(rank_count == 3) && any(rank_count == 2)) {
+    return("Full House")
+  }
+  
+  # If the variable 'is_flush' is TRUE, it will return the string "Flush". 
+  # Please note that "Straight Flush" is already tested in the above code.
+  if (is_flush) {
+    return("Flush")
+  }
+  
+  # If the variable 'is_straight' is TRUE, it will return the string "Straight". 
+  # Please note that "Straight Flush" is already tested in the above code.
+  if (is_straight) {
+    return("Straight")
+  }
+  
+  # If there are 3 cards of the same rank, it will return the string "Three of a Kind".
+  if (any(rank_count == 3)) {
+    return("Three of a Kind")
+  }
+  
+  # If there are 2 different pairs, it will return the string "Two Pair".
+  if (sum(rank_count == 2) == 2) {
+    return("Two Pair")
+  }
+  
+  # If there are only one pair of cards of the same rank, it will return the string "One Pair".
+  if (any(rank_count == 2)) {
+    return("One Pair")
+  }
+  
+  # If all the above cases don't happen, it will return the string "High Card".
+  return("High Card")
+}
+
+test_pass <- TRUE
+correct_hand_name <- ""
+wrong_hand_name <- ""
+fail_suits <- list()
+fail_ranks <- list()
+
+for (i in seq_along(hand_name_test_cases)) {
+  ori_output_hand_name <- poker_hand_name(suits = hand_name_test_cases[[i]]$"suits",
+                                          ranks = hand_name_test_cases[[i]]$"ranks")
+  expected_hand_name <- hand_name_test_cases[[i]]$"expected_hand_name"
+  if (ori_output_hand_name != expected_hand_name) {
+    test_pass <- FALSE
+    correct_hand_name <- expected_hand_name
+    wrong_hand_name <- ori_output_hand_name
+    fail_suits <- hand_name_test_cases[[i]]$"suits"
+    fail_ranks <- hand_name_test_cases[[i]]$"ranks"
+    break  
+  }
+}
+
+if (test_pass) {
+  print("Test passes.")
+} else {
+  cat("Test fails: \n",
+      "The suits are (in levels): ", fail_suits, 
+      "\n The ranks are (in levels): ", fail_ranks,
+      "\n Expected hand name is: ", correct_hand_name,
+      "\n But get the wrong hand name: ", wrong_hand_name)
+}
+
+```
+
+**Test-4**: Does it ensure no duplicates in cards across hands? What happens if you ask for more than 10 hands to be dealt (as there are only 52 cards in a standard deck)?
+
+In *Test-2*, we can find that there are no duplicates in cards across hands for inputs `1 <= num_player <= 10`.
+
+For `num_player > 10`, the `deal_poker_round` will deal `NA` to players (as shown below: the `suits` and `ranks` of the 11-th player contain `NA`).
+
+```{r}
+#| code-fold: show
+#| code-summary: "The code for Problem 3-d"
+#| warning: true
+#| error: true
+
+deal_poker_round(11)
+
+```
+
+***Analyze the error***: This is because the data access on `shuffled_deck` (a `data.frame` object in function `deal_poker_round`) goes out of range. When we deal cards to the 11-th player, the data access `shuffled_deck$suit[51:55]` and `shuffled_deck$rank[51:55]` will return vectors including `NA`, since the length of `shuffled_deck` is only 52.
+
+***Fix the error***: To fix this error, we restrict the data access to be in range \[1, 50\]. When we deal cards to the 11-th player, we access the first five cards in `shuffled_deck` rather than the `shuffled_deck[51:55]`. Besides, to ensure that 11-th player's cards differ from those of the first player, we reshuffle the deck before dealing cards to the 11-th player.
+
+```{r}
+#| code-fold: show
+#| code-summary: "The code for Problem 3-d"
+#| warning: true
+#| error: true
+
+#' Function to deal a round of 5-card stud poker for a specified number of players.
+#'
+#' @param num_players the number of players.
+#'
+#' @return it will return a nested list to show hands and hands' names.
+deal_poker_round <- function(num_players) {
+  # Define the suits.
+  suits <- c("Hearts", "Diamonds", "Clubs", "Spades")
+  # Define the ranks.
+  ranks <- c("2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace")
+  
+  # Create a data frame which contains all combinations of the 'suits' and 'ranks'. This data frame is equivalent to a deck.
+  deck <- expand.grid(suit = suits, rank = ranks)
+  # Reshuffle the deck. 
+  # It uses 'sample' function to generate an integer vector of size 52 whose elements are chosen from range [1, 52] without duplication.
+  shuffled_deck <- deck[sample(nrow(deck)),]
+  
+  # We store all the outputs into a nested list
+  output <- list(
+    suits = vector(mode = "list", length = num_players), 
+    ranks = vector(mode = "list", length = num_players), 
+    hand_name = vector(mode = "character", length = num_players)
+    )
+  
+  # Deal 5 cards to each player.
+  for (i in 1:num_players) {
+    # Fix the error: When we finish dealing one deck, we get a new deck.
+    if (i != 1 && i %% 10 == 1) {
+      shuffled_deck <- deck[sample(nrow(deck)),]
+    }
+    
+    # Fix the error: We restrict the 'i' to be in range [1, 10]
+    ori_i <- i
+    i <- (i - 1) %% 10 + 1
+    
+    # The first card for the i-th player.
+    hand_start <- (i - 1) * 5 + 1
+    # The last card for the i-th player.
+    hand_end <- i * 5
+    
+    # Get the suits of the i-th player's cards.
+    output$"suits"[[ori_i]] <- shuffled_deck$suit[hand_start:hand_end]
+    # Get the ranks of the i-th player's cards. 
+    # Please note that the 'hand_ranks' also records the levels of ranks which are the useful information for 'sort' function.
+    output$"ranks"[[ori_i]] <- shuffled_deck$rank[hand_start:hand_end]
+    
+    ## Show the cards in i-th player's hand.
+    # print(paste("Player", i, "Hand:"))
+    # print(paste(hand_ranks, "of", hand_suits))
+    ## Show the name of the hand of i-th player.
+    # hand_name <- poker_hand_name(hand_suits, hand_ranks)
+    # print(paste("Hand Name:", hand_name))
+    
+    # Get hand name
+    output$"hand_name"[ori_i] <- poker_hand_name(output$"suits"[[ori_i]], output$"ranks"[[ori_i]])
+  }
+  
+  return(output)
+}
+
+deal_poker_round(11)
+
+```
+
+However, this will inevitably introduce duplicated cards across all hands, which is shown in the following test:
+
+```{r}
+#| code-fold: show
+#| code-summary: "The code for Problem 3-d"
+#| warning: true
+#| error: true
+
+# Test duplicated cards
+test_pass <- TRUE
+output <- deal_poker_round(11)
+if (test_duplicated_card(output$"suits", output$"ranks") == FALSE) {
+    test_pass <- FALSE
+}
+if (test_pass) {
+  print("Test passes.")
+} else {
+  print("Test fails.")
+}
+
+rm(list = ls())
+```
