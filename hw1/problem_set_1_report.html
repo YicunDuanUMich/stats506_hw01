@@ -3150,7 +3150,7 @@ return!"\t\n\x0B\f\r                　\u2028\u2029
 
 <section id="about-this-file" class="level2">
 <h2 class="anchored" data-anchor-id="about-this-file">About this file</h2>
-<p>This is the Yicun Duan’s (umich id: 62178151) report of STAT 506’s Problem Set 1.</p>
+<p>This is the Yicun Duan’s (umich id: 62178151) report of STAT 506’s Problem Set 1. Link to my <a href="https://github.com/YicunDuanUMich/stats506_hw01">GitHub repository</a>.</p>
 </section>
 <section id="problem-1" class="level2">
 <h2 class="anchored" data-anchor-id="problem-1">Problem 1</h2>
@@ -3162,7 +3162,12 @@ return!"\t\n\x0B\f\r                　\u2028\u2029
 <summary>The code for Problem 1-a</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>wines_data <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;./wine/wine.data&quot;</span>, <span class="at">sep =</span> <span class="st">&quot;,&quot;</span>, <span class="at">header =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(wines_data) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Class ID&quot;</span>, <span class="st">&quot;Alcohol&quot;</span>, <span class="st">&quot;Malic acid&quot;</span>, <span class="st">&quot;Ash&quot;</span>, <span class="st">&quot;Alcalinity of ash&quot;</span>, <span class="st">&quot;Magnesium&quot;</span>, <span class="st">&quot;Total phenols&quot;</span>, <span class="st">&quot;Flavanoids&quot;</span>, <span class="st">&quot;Nonflavanoid phenols&quot;</span>, <span class="st">&quot;Proanthocyanins&quot;</span>, <span class="st">&quot;Color intensity&quot;</span>, <span class="st">&quot;Hue&quot;</span>, <span class="st">&quot;OD280/OD315&quot;</span>, <span class="st">&quot;Proline&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(wines_data) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Class ID&quot;</span>, <span class="st">&quot;Alcohol&quot;</span>, <span class="st">&quot;Malic acid&quot;</span>, </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;Ash&quot;</span>, <span class="st">&quot;Alcalinity of ash&quot;</span>, </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;Magnesium&quot;</span>, <span class="st">&quot;Total phenols&quot;</span>, </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;Flavanoids&quot;</span>, <span class="st">&quot;Nonflavanoid phenols&quot;</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;Proanthocyanins&quot;</span>, <span class="st">&quot;Color intensity&quot;</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;Hue&quot;</span>, <span class="st">&quot;OD280/OD315&quot;</span>, <span class="st">&quot;Proline&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <ol start="2" type="a">
@@ -3545,21 +3550,21 @@ $root
 <span id="cb39-70"><a href="#cb39-70" aria-hidden="true" tabindex="-1"></a><span class="fu">deal_poker_round</span>(<span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;Player 1 Hand:&quot;
-[1] &quot;8 of Clubs&quot;    &quot;3 of Diamonds&quot; &quot;9 of Diamonds&quot; &quot;3 of Clubs&quot;   
-[5] &quot;7 of Hearts&quot;  
+[1] &quot;5 of Hearts&quot;    &quot;3 of Spades&quot;    &quot;10 of Hearts&quot;   &quot;King of Hearts&quot;
+[5] &quot;King of Spades&quot;
 [1] &quot;Hand Name: One Pair&quot;
 [1] &quot;Player 2 Hand:&quot;
-[1] &quot;6 of Spades&quot;     &quot;4 of Hearts&quot;     &quot;Queen of Hearts&quot; &quot;9 of Clubs&quot;     
-[5] &quot;7 of Diamonds&quot;  
+[1] &quot;7 of Diamonds&quot;     &quot;10 of Clubs&quot;       &quot;3 of Diamonds&quot;    
+[4] &quot;Queen of Diamonds&quot; &quot;Jack of Clubs&quot;    
 [1] &quot;Hand Name: Straight&quot;
 [1] &quot;Player 3 Hand:&quot;
-[1] &quot;Ace of Clubs&quot;   &quot;6 of Hearts&quot;    &quot;Jack of Hearts&quot; &quot;8 of Spades&quot;   
-[5] &quot;King of Spades&quot;
+[1] &quot;5 of Diamonds&quot;  &quot;8 of Hearts&quot;    &quot;King of Clubs&quot;  &quot;2 of Hearts&quot;   
+[5] &quot;Queen of Clubs&quot;
 [1] &quot;Hand Name: Straight&quot;
 [1] &quot;Player 4 Hand:&quot;
-[1] &quot;King of Hearts&quot; &quot;4 of Clubs&quot;     &quot;3 of Hearts&quot;    &quot;7 of Clubs&quot;    
-[5] &quot;7 of Spades&quot;   
-[1] &quot;Hand Name: One Pair&quot;</code></pre>
+[1] &quot;5 of Clubs&quot;      &quot;Queen of Spades&quot; &quot;9 of Diamonds&quot;   &quot;2 of Diamonds&quot;  
+[5] &quot;8 of Clubs&quot;     
+[1] &quot;Hand Name: Straight&quot;</code></pre>
 </div>
 </div>
 <p>To run this code, simply copy and paste it into your R environment and execute it. The function <code>deal_poker_round</code> will simulate dealing a round of 5-card stud poker for the specified number of players, in this case, 4 players.</p>
