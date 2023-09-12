@@ -3,6 +3,9 @@ title: "Problem Set 1"
 format: 
   html:
     embed-resources: true
+    toc: true
+    toc-location: right
+    toc-title: "Content"
 editor: visual
 ---
 
